@@ -1,0 +1,21 @@
+@use '../abstracts' as *;
+
+// The canvas fills the viewport and sits behind the UI. Fixed rather than
+// absolute so a mobile browser's collapsing address bar can't shift it.
+.stage {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-stage);
+  width: 100%;
+  height: 100%;
+
+  // Fade in once the model has loaded, so there is no pop-in of a bare canvas.
+  opacity: 0;
+  transition: opacity 0.8s var(--ease-out);
+
+  .is-loaded & { opacity: 1; }
+
+  @include reduced-motion {
+    transition-duration: 0.01ms;
+  }
+}

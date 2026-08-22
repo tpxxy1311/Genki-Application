@@ -1,0 +1,29 @@
+// Design tokens. Kept as CSS custom properties so they can be inspected and
+// overridden at runtime; Sass variables are used only where the value has to
+// exist at compile time (media query breakpoints).
+
+$bp-tablet: 48rem; // 768px
+$bp-mobile: 30rem; // 480px
+
+:root {
+  --color-bg: #d9d9d9;
+  --color-ink: #111111;
+  --color-surface: #6b6b6b;
+  --color-surface-hover: #4f4f4f;
+  --color-on-surface: #ffffff;
+
+  --font-sans: 'Helvetica Neue', Helvetica, system-ui, -apple-system, sans-serif;
+  --text-body: clamp(0.95rem, 0.8rem + 0.5vw, 1.25rem);
+
+  --space-edge: clamp(1.25rem, 0.5rem + 2.5vw, 3.25rem);
+  --space-gap: 0.75rem;
+
+  --radius-pill: 999px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur: 0.4s;
+
+  --z-stage: 0;
+  --z-overlay: 10;
+  --z-cursor: 100;
+}

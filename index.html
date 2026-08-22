@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Tim Peters — application" />
+    <title>Tim Peters</title>
+  </head>
+  <body>
+    <!-- Fullscreen WebGL layer. The logo is centred by the camera, not by a
+         box in the layout, so it can overflow freely as it rotates. -->
+    <canvas id="scene" class="stage" aria-hidden="true"></canvas>
+
+    <!-- Real DOM on top: selectable, focusable, readable by assistive tech. -->
+    <div class="overlay">
+      <header class="overlay__row">
+        <p class="overlay__brand">Tim Peters</p>
+        <p class="overlay__intro">Description Text</p>
+      </header>
+
+      <footer class="overlay__row">
+        <nav class="actions" aria-label="Documents">
+          <a class="button button--glass" href="/resume.pdf">Resumee</a>
+          <a class="button button--glass" href="/application.pdf">Application</a>
+        </nav>
+
+        <nav class="actions" aria-label="Profiles">
+          <a class="button button--glass button--icon" href="#" aria-label="Portfolio">P</a>
+          <a class="button button--glass button--icon" href="#" aria-label="GitHub">Git</a>
+        </nav>
+      </footer>
+    </div>
+
+    <div id="cursor" class="cursor" aria-hidden="true"></div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

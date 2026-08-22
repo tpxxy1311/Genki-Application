@@ -1,0 +1,46 @@
+@use '../abstracts' as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--space-edge);
+
+  // The overlay is a transparent sheet over the canvas -- clicks must fall
+  // through it. Interactive children opt back in individually.
+  pointer-events: none;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-gap);
+  }
+
+  &__brand,
+  &__intro {
+    pointer-events: auto;
+  }
+
+  &__intro {
+    text-align: right;
+    max-width: 22ch;
+  }
+
+  @include mobile-down {
+    &__row { flex-direction: column; align-items: flex-start; }
+    &__intro { text-align: left; }
+    &__row:last-child { align-items: stretch; gap: 1rem; }
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-gap);
+  pointer-events: auto;
+}

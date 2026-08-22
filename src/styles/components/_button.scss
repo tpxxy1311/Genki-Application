@@ -1,0 +1,48 @@
+@use '../abstracts' as *;
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 3.25rem;
+  padding-inline: 1.75rem;
+
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  white-space: nowrap;
+
+  transition:
+    background-color var(--dur) var(--ease-out),
+    transform var(--dur) var(--ease-out);
+
+  &:hover { background: var(--color-surface-hover); }
+  &:active { transform: scale(0.97); }
+
+  // Liquid-glass variant. backdrop-filter only has something to show when
+  // there is content behind the element -- over a flat fill it renders as a
+  // plain translucent pill.
+  &--glass {
+    @include glass('light');
+    color: var(--color-ink);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.75);
+    }
+  }
+
+  // Circular variant for the profile links. Padding is dropped so the pill
+  // radius resolves to a true circle at the min-height.
+  &--icon {
+    width: 3.25rem;
+    padding-inline: 0;
+    aspect-ratio: 1;
+  }
+
+  @include reduced-motion {
+    transition-duration: 0.01ms;
+    &:active { transform: none; }
+  }
+}

@@ -1,0 +1,19 @@
+@use 'variables' as *;
+
+@mixin tablet-down {
+  @media (max-width: $bp-tablet) { @content; }
+}
+
+@mixin mobile-down {
+  @media (max-width: $bp-mobile) { @content; }
+}
+
+// Everything the custom cursor touches is gated behind this: a coarse pointer
+// has no cursor to replace, and hiding it would leave touch users with nothing.
+@mixin fine-pointer {
+  @media (hover: hover) and (pointer: fine) { @content; }
+}
+
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) { @content; }
+}

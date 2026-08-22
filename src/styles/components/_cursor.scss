@@ -1,0 +1,36 @@
+@use '../abstracts' as *;
+
+.cursor {
+  // Hidden by default; JS adds .has-custom-cursor to <html> only when the
+  // device actually has a fine pointer to replace.
+  display: none;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-cursor);
+
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: #fff;
+
+  // Difference blending keeps the dot legible over both the light background
+  // and the dark pills without any state tracking.
+  mix-blend-mode: difference;
+
+  // Positioned entirely from JS via transform -- never a layout property.
+  will-change: transform;
+  pointer-events: none;
+
+  .has-custom-cursor & { display: block; }
+}
+
+// Suppress the native cursor only once the replacement is live, so a JS error
+// can never leave the page with no cursor at all.
+@include fine-pointer {
+  .has-custom-cursor,
+  .has-custom-cursor * {
+    cursor: none;
+  }
+}
