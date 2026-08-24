@@ -1,0 +1,22 @@
+@use '../abstracts' as *;
+
+// Hintergrund aus drei gestapelten radial-gradients.
+//
+// Reihenfolge = Stapelreihenfolge: der erste Gradient liegt ganz oben, der
+// letzte ganz unten. Deshalb steht der graue Kreis zuletzt -- er bildet die
+// Grundstimmung, die beiden Farbkreise legen sich darueber.
+//
+// Die Kreise sind bewusst gross und weit ueber den Viewport hinaus zentriert:
+// sichtbar ist jeweils nur der aeussere, weiche Teil des Verlaufs. Das haelt
+// die Mitte hinter dem Logo ruhig.
+//
+// Kein filter: blur() -- die Stops sind weich genug, und ein Filter wuerde eine
+// Compositing-Ebene erzeugen, die bei jedem Frame der WebGL-Szene neu
+// zusammengesetzt werden muesste.
+body {
+      background-color: hsla(125, 100%, 85%, 1);
+    background-image: radial-gradient(circle at 50% 0%, hsla(0, 0%, 92%, 1) 49.15975941515135%, transparent 102.23193813062571%), radial-gradient(circle at 50.68289118705036% 45.81591156423621%, hsla(96, 89%, 79%, 1) 49.15975941515135%, transparent 102.23193813062571%), radial-gradient(circle at 51.47350869304557% 94.30284285086965%, hsla(43, 100%, 80%, 1) 49.15975941515135%, transparent 102.23193813062571%);
+    background-blend-mode: normal, normal, normal;
+
+  background-repeat: no-repeat;
+}

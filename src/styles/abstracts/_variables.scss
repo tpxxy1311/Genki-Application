@@ -12,6 +12,29 @@ $bp-mobile: 30rem; // 480px
   --color-surface-hover: #4f4f4f;
   --color-on-surface: #ffffff;
 
+  // Hintergrund-Verlauf: drei gestapelte Kreise, von oben nach unten
+  // kuehles Grau -> Genki-Gruen -> blasses Orange.
+  //
+  // Bewusst HELLE, gesaettigte Farben mit hohem Alpha statt dunkler Farben mit
+  // niedrigem Alpha. Eine dunkle Farbe halbtransparent ueber hellem Grund
+  // erzeugt vor allem Verdunkelung und kaum Farbe -- gemessen lag die
+  // Farbigkeit damit bei Chroma 13-21, also an der Wahrnehmungsschwelle,
+  // waehrend die Seite ueberall ~30 Luma-Punkte dunkler wurde. Farben nah an
+  // der Helligkeit des Grundes halten die Luminanz stabil und setzen
+  // stattdessen Saettigung.
+  //
+  // Jede Farbe braucht ein Gegenstueck mit Alpha 0. `transparent` waere hier
+  // falsch -- das ist in allen Browsern rgba(0,0,0,0) und zieht beim
+  // Interpolieren einen Grauschleier durch den Verlauf.
+  --circle-slate: rgba(168, 186, 198, 0.4);
+  --circle-slate-0: rgba(168, 186, 198, 0);
+
+  --circle-green: rgba(120, 210, 160, 0.55);
+  --circle-green-0: rgba(120, 210, 160, 0);
+
+  --circle-amber: rgba(245, 190, 140, 0.5);
+  --circle-amber-0: rgba(245, 190, 140, 0);
+
   --font-sans: 'Helvetica Neue', Helvetica, system-ui, -apple-system, sans-serif;
   --text-body: clamp(0.95rem, 0.8rem + 0.5vw, 1.25rem);
 
