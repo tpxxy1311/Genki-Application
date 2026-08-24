@@ -4,17 +4,27 @@ import { damp } from '@/utils/math.js'
 import { prefersReducedMotion, hasFinePointer } from '@/utils/env.js'
 
 /**
- * Custom cursor. Only ever writes `transform` and `scale`, both of which the
- * compositor handles on its own thread -- writing `left`/`top` would force a
- * layout on every frame.
+ * Custom cursor. Der Container traegt die Position des Rings, der Punkt
+ * darin laeuft mit einer eigenen, traegeren Daempfung hinterher. Wie die
+ * beiden Kreise aussehen, entscheidet allein die .cursor--hover-Klasse.
+ *
+ * Schreibt nur `transform` und `translate` -- der Compositor erledigt beide
+ * auf seinem eigenen Thread, waehrend `left`/`top` jeden Frame ein Layout
+ * ausloesen wuerden.
  */
 export class Cursor {
   constructor(el) {
     this.el = el
+    this.dot = el.querySelector('.cursor__dot')
+
     this.x = pointer.px
     this.y = pointer.py
-    this.scale = 1
-    this.targetScale = 1
+
+    // Zweite, unabhaengig gedaempfte Position. Startet auf demselben Punkt,
+    // damit der Nachlauf beim ersten Frame nicht aus dem Nichts einschwingt.
+    this.dotX = this.x
+    this.dotY = this.y
+
     this.enabled = false
   }
 
@@ -30,7 +40,10 @@ export class Cursor {
 
   setState(state) {
     if (!this.enabled) return
-    this.targetScale = state === 'hover' ? CONFIG.cursor.hoverScale : 1
+    // Kein gedaempfter Scale mehr auf dem Container: der wuerde beide Kreise
+    // gleichzeitig groesser ziehen. Hier soll der innere aufgehen, waehrend
+    // der aeussere nach innen wegfaellt -- zwei gegenlaeufige Bewegungen, die
+    // jeder Kreis fuer sich als CSS-Transition faehrt.
     this.el.classList.toggle('cursor--hover', state === 'hover')
   }
 
@@ -39,13 +52,25 @@ export class Cursor {
 
     // Reduced motion: snap rather than trail, so the cursor never lags behind
     // the real pointer position.
-    const lambda = prefersReducedMotion() ? 1e3 : CONFIG.cursor.damping
+    const reduced = prefersReducedMotion()
+    const lambda = reduced ? 1e3 : CONFIG.cursor.damping
+    const dotLambda = reduced ? 1e3 : CONFIG.cursor.dotDamping
 
     this.x = damp(this.x, pointer.px, lambda, dt)
     this.y = damp(this.y, pointer.py, lambda, dt)
-    this.scale = damp(this.scale, this.targetScale, lambda, dt)
+    this.dotX = damp(this.dotX, pointer.px, dotLambda, dt)
+    this.dotY = damp(this.dotY, pointer.py, dotLambda, dt)
 
     this.el.style.transform =
-      `translate3d(${this.x}px, ${this.y}px, 0) translate(-50%, -50%) scale(${this.scale})`
+      `translate3d(${this.x}px, ${this.y}px, 0) translate(-50%, -50%)`
+
+    // Bewusst die eigenstaendige `translate`-Eigenschaft statt `transform`:
+    // im transform des Punktes stehen schon Zentrierung und Zustands-Scale,
+    // die per CSS-Transition laufen -- ein Frame-Schreiben darauf wuerde
+    // beides ueberbuegeln. Die Reihenfolge translate -> scale -> transform
+    // sorgt ausserdem dafuer, dass der Versatz in echten Pixeln bleibt und
+    // nicht vom Zustands-Scale mitskaliert wird.
+    this.dot.style.translate =
+      `${this.dotX - this.x}px ${this.dotY - this.y}px`
   }
 }

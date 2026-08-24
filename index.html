@@ -12,8 +12,17 @@
          JS laeuft keine Animation, und dann soll die Seite auch nicht mit
          unsichtbaren Elementen dastehen. -->
     <script>document.documentElement.classList.add('is-preload')</script>
+
+    <!-- Ohne JS laeuft die Sequenz nicht -- dann muss die Abdeckung weg,
+         sonst bliebe die Seite dauerhaft dahinter stehen. -->
+    <noscript>
+      <style>.loader-overlay { display: none; }</style>
+    </noscript>
   </head>
   <body>
+    <!-- Liegt ueber allem und blendet als Erstes aus. -->
+    <div class="loader-overlay" aria-hidden="true"></div>
+
     <!-- Traegt den Verlauf. Eigenes Element, weil der Intro-Tween ihn
          skaliert und einblendet -- beides geht auf einem Body-Hintergrund
          nicht. -->
@@ -73,7 +82,12 @@
       </footer>
     </div>
 
-    <div id="cursor" class="cursor" aria-hidden="true"></div>
+    <!-- Zwei Kreise, ein Anker: Cursor.js bewegt nur .cursor, die beiden
+         Kinder haben ihre eigenen Transforms fuer den Hover-Zustand. -->
+    <div id="cursor" class="cursor" aria-hidden="true">
+      <span class="cursor__dot"></span>
+      <span class="cursor__ring"></span>
+    </div>
 
     <script type="module" src="/src/main.js"></script>
   </body>

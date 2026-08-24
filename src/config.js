@@ -42,19 +42,22 @@ export const CONFIG = {
   // Eroeffnungs-Sequenz. Zeiten in Sekunden -- GSAP rechnet in Sekunden,
   // nicht in Millisekunden.
   intro: {
+    loader: 0.9, // Abdeckung blendet aus und gibt den Verlauf frei
+    loaderOverlap: 0.55, // so weit laeuft der Verlauf schon waehrend des Ausblendens
+
     backdrop: 1.5, // Verlauf blendet auf und faehrt von backdropScale herunter
     backdropScale: 1.12,
 
     headline: 1.0,
-    headlineStagger: 0.14,
-    headlineShift: 48, // px, aus denen die Zeilen hochlaufen
+    headlineStagger: 0.1,
+    headlineScale: 1.2, // Zeilen fahren aus dieser Groesse auf 1 zurueck
 
     logo: 1.4, // Aufskalieren + Eindrehen des 3D-Elements
     logoSpin: Math.PI * 0.8, // Startversatz des Yaw, laeuft auf 0 zu
     stageFade: 0.6,
 
     overlay: 0.7,
-    overlayStagger: 0.07,
+    overlayStagger: 0.1,
     overlayShift: 14, // px
 
     cursorFade: 0.4,
@@ -64,10 +67,15 @@ export const CONFIG = {
   },
 
   cursor: {
-    damping: 22,
-    // Wie stark der Punkt ueber Links und Buttons aufgeht. 1 schaltet die
-    // Skalierung ganz ab -- der Hover-Zustand haengt dann allein an der
-    // .cursor--hover-Klasse, die Cursor.setState ohnehin setzt.
-    hoverScale: 1.5,
+    damping: 12, // Ring -- folgt dem Zeiger direkt
+
+    // Der innere Punkt laeuft auf einer eigenen, traegeren Daempfung
+    // hinterher. Niedriger = mehr Nachlauf; derselbe Wert wie damping hebt
+    // den Versatz auf.
+    dotDamping: 22,
+
+    // Groessen und Zeiten der beiden Kreise stehen als Custom Properties in
+    // _cursor.scss. Der Hover-Zustand laeuft dort als CSS-Transition, nicht
+    // ueber die Frame-Schleife -- hier bleibt nur die Positions-Daempfung.
   },
 }

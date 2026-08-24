@@ -31,11 +31,29 @@
       transparent 85.23193813062571%
     ),
     radial-gradient(
-       ellipse 90% 100% at 50% 20%,
-      #dfb081 49.15975941515135%,
+      ellipse 90% 100% at 50% 20%,
+      #df9581 49.15975941515135%,
       transparent 90.23193813062571%
-    )
-    ;
+    );
 
+  background-repeat: no-repeat;
+}
+
+// Deckt die Seite ab, bis die Intro-Sequenz sie freigibt. Deshalb steht sie
+// als einziges animiertes Element voll sichtbar im Markup und nicht in der
+// .is-preload-Liste -- alles andere darf beim ersten Frame unsichtbar sein,
+// diese Flaeche muss sichtbar sein.
+//
+// Das Ausblenden macht Intro.enter() per autoAlpha, was bei 0 zusaetzlich
+// visibility: hidden setzt. Ohne das bliebe eine bildschirmfuellende Ebene
+// ueber der Szene stehen, die bei jedem Frame mitkomponiert werden muesste --
+// bei z-index 99999 ueber allem, also inklusive Canvas.
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  pointer-events: none;
+
+  background-color: #afbfb0;
   background-repeat: no-repeat;
 }

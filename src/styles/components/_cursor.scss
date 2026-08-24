@@ -1,6 +1,25 @@
 @use '../abstracts' as *;
 
+// Zwei Kreise: ein gefuellter Punkt und ein Ring darum.
+//
+// Ruhe  -- kleiner Punkt, Ring darum.
+// Hover -- der Ring faellt nach innen weg, der Punkt geht auf volle Groesse.
+//
+// Die beiden Bewegungen laufen aufeinander zu: der Ring schrumpft in dem
+// Moment nach innen, in dem der Punkt herauswaechst.
+//
+// Der Container traegt keinerlei eigene Optik. Er ist nur der Punkt im Raum,
+// den Cursor.js jeden Frame verschiebt; alles Sichtbare haengt an den beiden
+// Kindern, damit sie sich unabhaengig voneinander bewegen koennen.
 .cursor {
+  // Lokale Tokens statt globaler: sie beschreiben nur diesen Baustein, und
+  // die beiden Kreise erben sie ohne Umweg.
+  --dot-size: 1.2rem;
+  --dot-idle: 0.5; // Faktor, nicht Groesse -- skaliert, statt Layout zu aendern
+  --ring-size: 2rem;
+  --ring-exit: 0.8; // in diese Groesse faellt der Ring beim Verschwinden
+  --cursor-dur: 0.35s;
+
   // Hidden by default; JS adds .has-custom-cursor to <html> only when the
   // device actually has a fine pointer to replace.
   display: none;
@@ -10,33 +29,86 @@
   left: 0;
   z-index: var(--z-cursor);
 
-  width: 1rem;
-  height: 1rem;
-  border-radius: 50%;
+  // Die Box hat die Groesse des groessten Zustands. Sie ist selbst
+  // unsichtbar -- Cursor.js zentriert sie per translate(-50%, -50%) auf dem
+  // Zeiger, beide Kreise sitzen darin mittig.
+  width: var(--ring-size);
+  height: var(--ring-size);
 
-  // Difference rechnet pro Kanal |Hintergrund - Quelle|. Die Quellfarbe ist
-  // deshalb nicht die Farbe, die man sieht, sondern deren Gegenrechnung:
-  //
-  //   Ziel     #dfb081 (223, 176, 129)  -- das Orange aus dem Verlauf
-  //   Grund    #ebebeb (235, 235, 235)  -- der helle Kreis in der Bildmitte
-  //   Quelle   #0c3b6a ( 12,  59, 106)  = |Grund - Ziel|
-  //
-  // Das Orange stimmt damit exakt ueber dem hellen Grund. Ueber den uebrigen
-  // Verlaufsfarben und ueber dem Logo verschiebt es sich bewusst mit -- genau
-  // dafuer ist der Blend da. Eine Quellfarbe kann nicht alle Untergruende
-  // gleichzeitig treffen.
-  //
-  // Kein isolation: isolate auf einem Elternteil: das schneidet die
-  // Blend-Gruppe ab, der Cursor haette dann nichts zum Verrechnen und wuerde
-  // stumpf als #0c3b6a gezeichnet.
-  background: rgb(12, 59, 106);
-  mix-blend-mode: difference;
-
-  // Positioned entirely from JS via transform -- never a layout property.
-  will-change: transform;
+  // Bewusst KEIN will-change: transform. Es steht auf der Liste der
+  // Eigenschaften, die einen Backdrop-Root aufmachen -- der backdrop-filter
+  // des Punktes wuerde dann nur noch den Inhalt dieses Containers sampeln,
+  // also nichts. Das translate3d unten promotet die Ebene ohnehin schon.
   pointer-events: none;
 
   .has-custom-cursor & { display: block; }
+}
+
+.cursor__dot,
+.cursor__ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+
+  // Eigener transform, unabhaengig von dem, den Cursor.update jeden Frame auf
+  // den Container schreibt. Genau deshalb muessen die Hover-Zustaende nicht
+  // durch die JS-Daempfung: sie laufen als CSS-Transition auf dem Compositor.
+  transform: translate(-50%, -50%) scale(1);
+  transition:
+    transform var(--cursor-dur) var(--ease-out),
+    opacity var(--cursor-dur) var(--ease-out);
+}
+
+.cursor__dot {
+  width: var(--dot-size);
+  height: var(--dot-size);
+
+  // Ruhezustand ist der kleine Punkt: --dot-size bleibt die Geometrie, der
+  // Faktor macht den Zustand. Volle Groesse erreicht er erst auf Hover.
+  transform: translate(-50%, -50%) scale(var(--dot-idle));
+
+  // Der Blend-Ansatz von vorher liegt daneben, nicht darunter: mix-blend-mode
+  // steht ebenfalls auf der Backdrop-Root-Liste. Entweder der Punkt blurrt
+  // seinen Untergrund -- oder er verrechnet sich mit ihm. Beides zusammen
+  // hebt sich gegenseitig auf.
+  background: rgba(140, 136, 133, 0.529);
+  backdrop-filter: blur(2px) saturate(1.25);
+  -webkit-backdrop-filter: blur(2px) saturate(1.25);
+}
+
+.cursor__ring {
+  width: var(--ring-size);
+  height: var(--ring-size);
+
+  // Gleiche Kantenhelligkeit wie die Glass-Buttons, damit der Ring ueber dem
+  // Verlauf zur selben Familie gehoert.
+  border: 2.5px solid rgba(140, 136, 133, 0.529);
+
+  // Ruhezustand: sichtbar, auf voller Groesse. Der gemeinsame Basis-Transform
+  // weiter oben passt hier schon, es bleibt nichts zu ueberschreiben.
+  opacity: 1;
+}
+
+// Der Zustand haengt allein an dieser Klasse, die Cursor.setState setzt.
+.cursor--hover {
+  .cursor__dot {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  // Nach innen weg statt nur ausblenden -- so hat das Verschwinden eine
+  // Richtung und laeuft dem aufgehenden Punkt entgegen.
+  .cursor__ring {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(var(--ring-exit));
+  }
+}
+
+@include reduced-motion {
+  .cursor__dot,
+  .cursor__ring {
+    transition-duration: 0.01ms;
+  }
 }
 
 // Suppress the native cursor only once the replacement is live, so a JS error

@@ -20,6 +20,7 @@ export class Intro {
     this.logo = logo
 
     this.el = {
+      loader: document.querySelector('.loader-overlay'),
       backdrop: document.querySelector('.backdrop'),
       lines: gsap.utils.toArray('.headline__line'),
       stage: document.querySelector('.stage'),
@@ -55,8 +56,14 @@ export class Intro {
    * Elemente versteckt.
    */
   prepare() {
-    const { backdrop, lines, stage, overlay, cursor } = this.el
-    const { backdropScale, headlineShift, overlayShift } = CONFIG.intro
+    const { loader, backdrop, lines, stage, overlay, cursor } = this.el
+    const { backdropScale, headlineScale, overlayShift } = CONFIG.intro
+
+    // Die Abdeckung steht schon sichtbar im Markup und deckt alles ab, was
+    // hier gleich auf 0 gesetzt wird. Sie ist deshalb das einzige Element,
+    // das nicht ueber .is-preload laeuft -- der Startwert steht trotzdem
+    // hier, damit die Sequenz ihre Ausgangslage vollstaendig selbst setzt.
+    gsap.set(loader, { autoAlpha: 1 })
 
     gsap.set(backdrop, {
       opacity: 0,
@@ -64,23 +71,26 @@ export class Intro {
       transformOrigin: '50% 35%', // dort sitzt der helle Kreis des Verlaufs
       willChange: 'opacity, transform',
     })
-    gsap.set(lines, { opacity: 0, y: headlineShift })
+    gsap.set(lines, { opacity: 0, scale: headlineScale })
     gsap.set(stage, { opacity: 0 })
     gsap.set(overlay, { opacity: 0, y: overlayShift })
     // Nur opacity: Cursor.update schreibt jeden Frame einen kompletten
     // transform-String und wuerde alles ueberbuegeln, was GSAP dort setzt.
-    gsap.set(cursor, { opacity: 0 })
 
     document.documentElement.classList.remove('is-preload')
   }
 
-  /** Phase 1: Verlauf, dann Headline. Laeuft ab Aufruf. */
+  /** Phase 1: Abdeckung weg, Verlauf, dann Headline. Laeuft ab Aufruf. */
   enter() {
-    const { backdrop, lines } = this.el
+    const { loader, backdrop, lines } = this.el
     const c = CONFIG.intro
 
     return gsap
       .timeline()
+      // autoAlpha statt opacity: bei 0 setzt GSAP zusaetzlich
+      // visibility: hidden. Ein bildschirmfuellendes Element mit opacity 0
+      // wuerde sonst weiter bei jedem WebGL-Frame mitkomponiert.
+      .to(loader, { autoAlpha: 0, duration: c.loader, ease: 'power2.inOut' })
       .to(backdrop, {
         opacity: 1,
         scale: 1,
@@ -90,15 +100,22 @@ export class Intro {
         // Bliebe sie stehen, muesste sie hinter jedem WebGL-Frame neu
         // zusammengesetzt werden.
         onComplete: () => gsap.set(backdrop, { clearProps: 'transform,willChange' }),
-      })
+      },
+      // Der Verlauf laeuft schon an, waehrend die Abdeckung noch ausblendet --
+      // sonst gibt sie nur eine graue Flaeche frei und die Bewegung setzt
+      // erst danach ein.
+      `-=${c.loaderOverlap}`)
       .to(
         lines,
         {
           opacity: 1,
-          y: 0,
+          scale: 1,
           duration: c.headline,
           ease: 'power3.out',
           stagger: c.headlineStagger,
+          // Gleicher Grund wie beim Verlauf: ein stehengebliebener transform
+          // haelt die Zeilen als eigene Ebene hinter der Szene.
+          clearProps: 'transform',
         },
         // Ueberlappend: die Zeilen setzen ein, waehrend der Verlauf noch
         // ausrollt -- sonst steht die Sequenz kurz still.
@@ -124,13 +141,12 @@ export class Intro {
           opacity: 1,
           y: 0,
           duration: c.overlay,
-          ease: 'power2.out',
+          ease: 'power3.out',
           stagger: c.overlayStagger,
           clearProps: 'transform', // danach gehoert der Platz wieder dem Layout
         },
         `-=${c.logo * 0.6}`,
       )
-      .to(cursor, { opacity: 1, duration: c.cursorFade }, '<')
   }
 
   /**
@@ -138,8 +154,9 @@ export class Intro {
    * Rest der App -- alles laeuft ueber dieselben Endwerte.
    */
   skip() {
-    const { backdrop, lines, stage, overlay, cursor } = this.el
+    const { loader, backdrop, lines, stage, overlay, cursor } = this.el
 
+    gsap.set(loader, { autoAlpha: 0 })
     gsap.set([backdrop, ...lines, stage, ...overlay, cursor], {
       opacity: 1,
       clearProps: 'transform,willChange',
