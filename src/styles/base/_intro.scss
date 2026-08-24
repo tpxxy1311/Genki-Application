@@ -1,0 +1,21 @@
+// Startzustand der Intro-Sequenz.
+//
+// Die Klasse setzt ein Inline-Script im <head>, also noch vor dem ersten Paint;
+// Intro.prepare() nimmt sie wieder ab, sobald GSAP die Startwerte inline
+// geschrieben hat. Ohne diesen Zwischenschritt blitzen die Elemente zwischen
+// Parsen des Markups und Ausfuehren des Moduls einmal fertig auf.
+//
+// Nur opacity, kein transform: die Positionen kommen aus dem Tween, und ein
+// vorab gesetzter transform wuerde sich mit dem Cursor beissen, der seinen
+// eigenen jeden Frame schreibt.
+.is-preload {
+  .backdrop,
+  .headline__line,
+  .stage,
+  .overlay__brand,
+  .overlay__intro,
+  .button,
+  .cursor {
+    opacity: 0;
+  }
+}

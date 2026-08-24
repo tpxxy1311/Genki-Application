@@ -33,14 +33,41 @@ export const CONFIG = {
     // a saturated brand colour; 0 keeps the green clean and the highlights white.
     metalness: 0,
     roughness: 0.35,
-    maxAngle: 0.62, // ~35deg of yaw at the far left / far right of the screen
+    maxAngle: 1.5, // ~35deg of yaw at the far left / far right of the screen
     damping: 4.5, // higher = snappier follow
     idleSpeed: 0.12, // slow drift (rad/s) before the pointer is ever moved
-    tiltRatio: 0.25, // how much of maxAngle the vertical axis gets, 0 = yaw only
+    tiltRatio: 0.45, // how much of maxAngle the vertical axis gets, 0 = yaw only
+  },
+
+  // Eroeffnungs-Sequenz. Zeiten in Sekunden -- GSAP rechnet in Sekunden,
+  // nicht in Millisekunden.
+  intro: {
+    backdrop: 1.5, // Verlauf blendet auf und faehrt von backdropScale herunter
+    backdropScale: 1.12,
+
+    headline: 1.0,
+    headlineStagger: 0.14,
+    headlineShift: 48, // px, aus denen die Zeilen hochlaufen
+
+    logo: 1.4, // Aufskalieren + Eindrehen des 3D-Elements
+    logoSpin: Math.PI * 0.8, // Startversatz des Yaw, laeuft auf 0 zu
+    stageFade: 0.6,
+
+    overlay: 0.7,
+    overlayStagger: 0.07,
+    overlayShift: 14, // px
+
+    cursorFade: 0.4,
+
+    // Notbremse: haengt der glTF-Download, kommt der Rest der Seite trotzdem.
+    loadTimeout: 6,
   },
 
   cursor: {
     damping: 22,
-    hoverScale: 2.8,
+    // Wie stark der Punkt ueber Links und Buttons aufgeht. 1 schaltet die
+    // Skalierung ganz ab -- der Hover-Zustand haengt dann allein an der
+    // .cursor--hover-Klasse, die Cursor.setState ohnehin setzt.
+    hoverScale: 1.5,
   },
 }

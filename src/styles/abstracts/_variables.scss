@@ -35,8 +35,16 @@ $bp-mobile: 30rem; // 480px
   --circle-amber: rgba(245, 190, 140, 0.5);
   --circle-amber-0: rgba(245, 190, 140, 0);
 
-  --font-sans: 'Helvetica Neue', Helvetica, system-ui, -apple-system, sans-serif;
+  // Gedaempftes Grau statt vollem Ink: die Headline liegt hinter der Szene und
+  // soll als Flaeche lesbar sein, ohne mit Header, Footer und Logo um
+  // Aufmerksamkeit zu konkurrieren.
+  --color-headline: rgba(17, 17, 17, 0.3);
+
+  --font-sans: 'Inter Variable', 'Helvetica Neue', Helvetica, system-ui, -apple-system, sans-serif;
   --text-body: clamp(0.95rem, 0.8rem + 0.5vw, 1.25rem);
+  // Rein viewport-basiert, ohne rem-Anteil: die Zeilen sollen ihr Verhaeltnis
+  // zur Bildbreite -- und damit zum Logo -- ueber alle Groessen halten.
+  --text-display: clamp(2.25rem, 7vw, 8.5rem);
 
   --space-edge: clamp(1.25rem, 0.5rem + 2.5vw, 3.25rem);
   --space-gap: 0.75rem;
@@ -46,6 +54,8 @@ $bp-mobile: 30rem; // 480px
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --dur: 0.4s;
 
+  --z-backdrop: -2; // ganz unten -- traegt den Verlauf
+  --z-headline: -1; // hinter dem Canvas, aber ueber dem Backdrop
   --z-stage: 0;
   --z-overlay: 10;
   --z-cursor: 100;

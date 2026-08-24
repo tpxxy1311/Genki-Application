@@ -9,6 +9,7 @@ html, body {
   // The page is a fixed single screen; nothing should ever scroll.
   overflow: hidden;
   overscroll-behavior: none;
+  user-select: none;
 }
 
 body {

@@ -7,18 +7,24 @@
 
   min-height: 3.25rem;
   padding-inline: 1.75rem;
-
+  font-weight: 500;
+  font-size: 1.1rem;
   border-radius: var(--radius-pill);
   background: var(--color-surface);
   color: var(--color-on-surface);
   white-space: nowrap;
 
+  // box-shadow laeuft nicht auf dem Compositor, sondern loest ein Repaint aus.
+  // Bei vier kleinen Pillen faellt das neben der WebGL-Szene nicht ins Gewicht;
+  // auf grossen Flaechen waere ein Pseudo-Element mit transform der bessere
+  // Weg.
   transition:
     background-color var(--dur) var(--ease-out),
+    box-shadow var(--dur) var(--ease-out),
     transform var(--dur) var(--ease-out);
 
   &:hover { background: var(--color-surface-hover); }
-  &:active { transform: scale(0.97); }
+  &:active { transform: scale(0.7); }
 
   // Liquid-glass variant. backdrop-filter only has something to show when
   // there is content behind the element -- over a flat fill it renders as a
@@ -28,8 +34,11 @@
     color: var(--color-ink);
 
     &:hover {
-      background: rgba(255, 255, 255, 0.3);
-      border-color: rgba(255, 255, 255, 0.75);
+      // Gleicher Wert wie im Mixin -- die Deklaration darf trotzdem nicht weg:
+      // .button:hover ist mit Klasse + Pseudoklasse spezifischer als
+      // .button--glass und wuerde das Glas sonst grau einfaerben.
+      background: rgba(255, 255, 255, 0.18);
+      @include glass-hover('light');
     }
   }
 
@@ -39,6 +48,19 @@
     width: 3.25rem;
     padding-inline: 0;
     aspect-ratio: 1;
+  }
+
+  // Stroke-Attribute stehen bewusst hier und nicht am svg-Tag: so laesst sich
+  // die Strichstaerke an einer Stelle fuer alle Icons nachziehen, und die
+  // Farbe kommt ueber currentColor vom Button -- inklusive Hover-Zustand.
+  &__icon {
+    width: 1.375rem;
+    height: 1.375rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 
   @include reduced-motion {

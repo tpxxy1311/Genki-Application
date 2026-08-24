@@ -14,14 +14,23 @@
   height: 1rem;
   border-radius: 50%;
 
-  // Frueher lag hier mix-blend-mode: difference. Das funktionierte, solange
-  // die Seite komplett neutralgrau war -- ueber dem gruenen Logo invertiert
-  // difference den Farbton aber zu Magenta. Mit farbigem Logo und farbigem
-  // Verlauf ist ein fester dunkler Punkt die verlaessliche Wahl: er bleibt auf
-  // dem hellen Grund, auf dem Logo und auf den Glass-Pills gleichermassen
-  // lesbar.
-  background: var(--color-ink);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.45);
+  // Difference rechnet pro Kanal |Hintergrund - Quelle|. Die Quellfarbe ist
+  // deshalb nicht die Farbe, die man sieht, sondern deren Gegenrechnung:
+  //
+  //   Ziel     #dfb081 (223, 176, 129)  -- das Orange aus dem Verlauf
+  //   Grund    #ebebeb (235, 235, 235)  -- der helle Kreis in der Bildmitte
+  //   Quelle   #0c3b6a ( 12,  59, 106)  = |Grund - Ziel|
+  //
+  // Das Orange stimmt damit exakt ueber dem hellen Grund. Ueber den uebrigen
+  // Verlaufsfarben und ueber dem Logo verschiebt es sich bewusst mit -- genau
+  // dafuer ist der Blend da. Eine Quellfarbe kann nicht alle Untergruende
+  // gleichzeitig treffen.
+  //
+  // Kein isolation: isolate auf einem Elternteil: das schneidet die
+  // Blend-Gruppe ab, der Cursor haette dann nichts zum Verrechnen und wuerde
+  // stumpf als #0c3b6a gezeichnet.
+  background: rgb(12, 59, 106);
+  mix-blend-mode: difference;
 
   // Positioned entirely from JS via transform -- never a layout property.
   will-change: transform;

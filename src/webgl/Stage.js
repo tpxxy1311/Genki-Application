@@ -20,7 +20,6 @@ export class Stage {
 
   async load() {
     await this.logo.load()
-    document.documentElement.classList.add('is-loaded')
   }
 
   resize = ({ width, height, aspect, dpr }) => {

@@ -44,3 +44,7 @@
   gap: var(--space-gap);
   pointer-events: auto;
 }
+
+.overlay__brand, .overlay__intro {
+  font-weight: 650;
+}

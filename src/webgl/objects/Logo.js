@@ -20,6 +20,12 @@ export class Logo {
     this.pitch = 0
     this.elapsed = 0
     this.ready = false
+
+    // Von der Intro-Sequenz getrieben: 0 = eingeklappt und weggedreht,
+    // 1 = volle Groesse, face-on. Ein einzelner Wert statt zwei getrennter
+    // Tweens -- so koennen Skalierung und Drehung nicht auseinanderlaufen.
+    this.reveal = 0
+    this.fitScale = 1
   }
 
   async load() {
@@ -36,7 +42,11 @@ export class Logo {
 
     const scale = CONFIG.logo.fitSize / Math.max(size.x, size.y, size.z)
     model.position.sub(center)
-    this.inner.scale.setScalar(scale)
+    this.fitScale = scale
+    // Die tatsaechliche Skalierung setzt update() aus fitScale * reveal --
+    // hier nur der Startwert, damit zwischen Laden und erstem Frame nichts
+    // in voller Groesse aufblitzt.
+    this.inner.scale.setScalar(scale * this.reveal)
     this.inner.rotation.y = CONFIG.logo.baseYaw // cancel the baked-in export rotation
     this.inner.add(model)
 
@@ -92,7 +102,10 @@ export class Logo {
     this.yaw = damp(this.yaw, targetYaw, damping, dt)
     this.pitch = damp(this.pitch, targetPitch, damping, dt)
 
-    this.root.rotation.y = this.yaw
+    // Der Intro-Versatz kommt oben drauf, statt yaw selbst zu setzen: so
+    // folgt das Logo schon waehrend des Eindrehens dem Zeiger.
+    this.root.rotation.y = this.yaw + (1 - this.reveal) * CONFIG.intro.logoSpin
     this.root.rotation.x = this.pitch
+    this.inner.scale.setScalar(this.fitScale * this.reveal)
   }
 }

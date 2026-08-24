@@ -1,3 +1,5 @@
+@use 'sass:math';
+
 // Liquid-glass surface.
 //
 // Reverse-engineered from danield.design, which turns out to use no SVG
@@ -15,31 +17,105 @@
 // dim in others -- is not in the CSS at all. It is the animated shader behind
 // the button showing through a semi-transparent edge. The glass is passive;
 // the backdrop does the work.
+
+// ---------------------------------------------------------------------------
+// Lichtrichtung. Hier -- und nur hier -- wird die Drehung eingestellt.
+// ---------------------------------------------------------------------------
 //
+// Ein inset-Schatten zeichnet dort, wohin er *nicht* verschoben wird: Offset
+// nach rechts-unten laesst die Lichtkante oben-links stehen. Der Vektor zeigt
+// also von der Lichtkante weg. In CSS-Koordinaten (x nach rechts, y nach
+// unten) heisst das:
+//
+//     0deg -> Kante an der linken Flanke
+//    45deg -> Kante oben links      <- Ruhezustand
+//    90deg -> Kante an der Oberkante
+//   135deg -> Kante oben rechts
+//
+// Zum Verfeinern reichen diese beiden Zahlen. Der Rest -- x/y-Komponenten,
+// Gegenreflexion, Richtung des Innenscheins -- wird daraus gerechnet und
+// bleibt automatisch konsistent.
+$glass-angle: 45deg !default; // Ruhe
+$glass-angle-hover: 20deg !default; // Hover
+
+// Betrag des Vektors = Dicke der Lichtkante. Bewusst getrennt vom Winkel: nur
+// wenn er ueber beide Zustaende konstant bleibt, *wandert* die Kante um den
+// Button, statt zu wachsen oder nach innen zu rutschen. Wer die Kante
+// staerker will, aendert ihn fuer beide Zustaende gemeinsam.
+$glass-rim: 1.41px !default;
+
+// Wie weit der weiche Innenschein der Kante folgt. 0 = zentriert.
+$glass-glow: 0 !default;
+$glass-glow-hover: 0px !default;
+
+@function glass-x($angle, $len) {
+  @return math.cos($angle) * $len;
+}
+
+@function glass-y($angle, $len) {
+  @return math.sin($angle) * $len;
+}
+
 // $tone: 'dark'  -> white edges, for glass sitting on dark / saturated art
 //        'light' -> stronger white fill + a soft dark rim, for light backdrops
 //                   where a white-on-white edge would disappear entirely
-@mixin glass($tone: 'light', $blur: 3.8px) {
+@mixin glass($tone: 'light', $blur: 10.8px, $angle: $glass-angle, $glow: $glass-glow) {
   backdrop-filter: blur($blur) saturate(1.25);
   -webkit-backdrop-filter: blur($blur) saturate(1.25);
 
+  $x: glass-x($angle, $glass-rim);
+  $y: glass-y($angle, $glass-rim);
+  $gx: glass-x($angle, $glow);
+  $gy: glass-y($angle, $glow);
+
   @if $tone == 'dark' {
     background: rgba(255, 255, 255, 0.1);
-    //border: 1px solid rgba(255, 255, 255, 0.25);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.2),
-      inset 0 0 16px rgba(255, 255, 255, 0.05);
-      //0 8px 32px rgba(0, 0, 0, 0.12);
+      inset $x $y 0 rgba(255, 255, 255, 0.2),
+      inset $gx $gy 16px rgba(255, 255, 255, 0.05);
   } @else {
-    // On a light page a pure-white rim vanishes, so the edge is carried by a
-    // bright top inset highlight and a faint dark bottom one -- the same bevel
-    // logic, inverted.
+    // On a light page a pure-white rim vanishes, so the edge is carried by
+    // inset highlights instead of a border.
+    //
+    // Zwei Kanten, exakt gegenueberliegend: die helle Lichtkante und die
+    // schwaechere Gegenreflexion. Die zweite bleibt bewusst gedaempft -- zwei
+    // gleich helle Kanten lesen sich als Rahmen, nicht als Glas.
     background: rgba(255, 255, 255, 0.18);
-    //border: 1px solid rgba(255, 255, 255, 0.55);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.75),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.05),
-      inset 0 0 16px rgba(255, 255, 255, 0.2);
-      //0 8px 32px rgba(0, 0, 0, 0.1);
+      inset $x $y 0 rgba(255, 255, 255, 0.75),
+      inset (-$x) (-$y) 0 rgba(255, 255, 255, 0.45),
+      inset $gx $gy 100px rgba(255, 255, 255, 0.05);
+  }
+}
+
+// Hover-Zustand: identische Struktur, nur ein anderer Winkel.
+//
+// Weil beide Zustaende aus derselben Formel kommen, ist die Bewegung immer
+// eine reine Drehung um das Objekt -- die Kante kann gar nicht erst dicker
+// werden oder nach innen sacken.
+//
+// Die Liste enthaelt zwangslaeufig gleich viele Schatten wie der Ruhezustand.
+// Das ist keine Kosmetik: unterschiedlich lange box-shadow-Listen kann der
+// Browser nicht interpolieren, der Uebergang wuerde hart umschalten.
+@mixin glass-hover($tone: 'light', $angle: $glass-angle-hover, $glow: $glass-glow-hover) {
+  $x: glass-x($angle, $glass-rim);
+  $y: glass-y($angle, $glass-rim);
+  $gx: glass-x($angle, $glow);
+  $gy: glass-y($angle, $glow);
+
+  @if $tone == 'dark' {
+    box-shadow:
+      inset $x $y 0 rgba(255, 255, 255, 0.28),
+      inset $gx $gy 16px rgba(255, 255, 255, 0.08);
+  } @else {
+    // Alphas bewusst identisch zum Ruhezustand. Der 100px-Blur ist auf einer
+    // 52px hohen Pille ein flaechiger Wash ueber den ganzen Button -- schon
+    // 0.2 -> 0.26 hellt die komplette Innenflaeche auf und liest sich als
+    // "sackt nach innen", obwohl sich geometrisch nichts bewegt. Solange die
+    // Alphas gleich bleiben, ist die Drehung der Kante die einzige Aenderung.
+    box-shadow:
+      inset $x $y 0 rgba(255, 255, 255, 0.75),
+      inset (-$x) (-$y) 0 rgba(255, 255, 255, 0.45),
+      inset $gx $gy 100px rgba(255, 255, 255, 0.4);
   }
 }

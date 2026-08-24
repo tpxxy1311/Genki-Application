@@ -1,9 +1,14 @@
-// Load order matters: reset first, then type, layout, components.
+// Load order matters: fonts and reset first, then type, layout, components.
 @use 'abstracts';
+@use 'base/fonts';
 @use 'base/reset';
 @use 'base/typography';
 @use 'layout/backdrop';
 @use 'layout/stage';
+@use 'layout/headline';
 @use 'layout/overlay';
 @use 'components/button';
 @use 'components/cursor';
+// Zuletzt: die Startzustaende der Intro-Sequenz ueberschreiben die
+// Defaults der Komponenten.
+@use 'base/intro';

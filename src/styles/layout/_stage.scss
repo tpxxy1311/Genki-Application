@@ -9,13 +9,6 @@
   width: 100%;
   height: 100%;
 
-  // Fade in once the model has loaded, so there is no pop-in of a bare canvas.
-  opacity: 0;
-  transition: opacity 0.8s var(--ease-out);
-
-  .is-loaded & { opacity: 1; }
-
-  @include reduced-motion {
-    transition-duration: 0.01ms;
-  }
+  // Die Einblendung liegt in der Intro-Timeline (src/ui/Intro.js), damit sie
+  // mit dem Aufskalieren des Logos in derselben Sequenz haengt.
 }

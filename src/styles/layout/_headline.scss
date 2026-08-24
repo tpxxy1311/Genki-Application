@@ -1,0 +1,71 @@
+@use '../abstracts' as *;
+
+// Grosse Typo-Ebene hinter der WebGL-Szene.
+//
+// Die drei Zeilen sind bewusst versetzt gesetzt -- links oben, rechts mittig,
+// links unten -- so dass das Logo in der Bildmitte jede Zeile ein Stueck weit
+// verdeckt. Der Ueberlappungs-Effekt entsteht rein ueber die Stapelreihenfolge:
+// z-index -1 liegt zwar unter dem Canvas, aber immer noch ueber dem
+// Body-Hintergrund. Kein mix-blend-mode noetig, der wuerde bei einer pro Frame
+// neu gezeichneten Canvas-Ebene nur Compositing-Arbeit erzeugen.
+.headline {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-headline);
+
+  display: grid;
+  align-content: evenly;
+  // Etwas mehr Luft oben/unten als die Overlay-Kante: Header und Footer
+  // stehen dort schon, die Headline soll sich nicht daran anlehnen.
+  padding: calc(var(--space-edge) * 2.5) var(--space-edge);
+
+  margin: 0;
+  font-size: var(--text-display);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--color-headline);
+
+  pointer-events: none;
+
+  &__line {
+    display: flex;
+    //justify-content: center;
+    align-items: center;
+    // Zeilenumbrueche innerhalb einer Zeile wuerden die Anordnung kippen.
+    white-space: nowrap;
+  }
+
+  // Der Versatz ist prozentual, nicht absolut: er skaliert mit der
+  // Viewport-Breite und haelt damit den Abstand zum Logo ueber alle
+  // Breakpoints hinweg aehnlich.
+  &__line--a {
+    justify-self: start;
+    margin-left: 15%;
+  }
+  &__line--b {
+    justify-self: end;
+    margin-right: 4%;
+    position: relative;
+    z-index: 999999; // Ueberlappt die untere Zeile, die vom Logo verdeckt wird.
+  }
+
+  &__line--c {
+    margin-left: 8%;
+  }
+
+  @include tablet-down {
+    padding-block: calc(var(--space-edge) * 2);
+
+    &__line--b { margin-right: 0; }
+    &__line--c { margin-left: 4%; }
+  }
+
+  @include mobile-down {
+    // Auf schmalen Screens ist fuer den Versatz kein Platz mehr -- die Zeilen
+    // stehen buendig links, die Ueberlappung uebernimmt allein das Logo.
+    &__line--b { justify-self: start; }
+    &__line--c { margin-left: 0; }
+  }
+}
