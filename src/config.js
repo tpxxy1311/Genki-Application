@@ -42,7 +42,7 @@ export const CONFIG = {
   // Eroeffnungs-Sequenz. Zeiten in Sekunden -- GSAP rechnet in Sekunden,
   // nicht in Millisekunden.
   intro: {
-    loader: 0.9, // Abdeckung blendet aus und gibt den Verlauf frei
+    loader: 1.5, // Abdeckung blendet aus und gibt den Verlauf frei
     loaderOverlap: 0.55, // so weit laeuft der Verlauf schon waehrend des Ausblendens
 
     backdrop: 1.5, // Verlauf blendet auf und faehrt von backdropScale herunter

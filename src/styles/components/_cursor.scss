@@ -63,7 +63,6 @@
 .cursor__dot {
   width: var(--dot-size);
   height: var(--dot-size);
-
   // Ruhezustand ist der kleine Punkt: --dot-size bleibt die Geometrie, der
   // Faktor macht den Zustand. Volle Groesse erreicht er erst auf Hover.
   transform: translate(-50%, -50%) scale(var(--dot-idle));
@@ -73,7 +72,7 @@
   // seinen Untergrund -- oder er verrechnet sich mit ihm. Beides zusammen
   // hebt sich gegenseitig auf.
   background: rgba(140, 136, 133, 0.529);
-  backdrop-filter: blur(2px) saturate(1.25);
+  backdrop-filter: blur(3px) saturate(1.25);
   -webkit-backdrop-filter: blur(2px) saturate(1.25);
 }
 
